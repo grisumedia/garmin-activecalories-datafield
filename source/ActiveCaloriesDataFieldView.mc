@@ -6,7 +6,8 @@ using Toybox.Activity;
 
 class ActiveCaloriesDataFieldView extends WatchUi.SimpleDataField {
 
-    private var previousCalories = 0 as Number;
+    private var previousTotalCalories = 0 as Number;
+    private var previousActiveCalories = 0 as Number;
 
     // Set the label of the data field here.
     function initialize() {
@@ -21,9 +22,13 @@ class ActiveCaloriesDataFieldView extends WatchUi.SimpleDataField {
     function compute(info as Activity.Info) as Numeric or Duration or String or Null {
         // See Activity.Info in the documentation for available information.
         var activityInfo = Activity.getActivityInfo();
-        var totalActivityCalories = activityInfo.calories;
-        if (totalActivityCalories == null) {
-            totalActivityCalories = 0;
+        var totalCalories = activityInfo.calories;
+        if (totalCalories == null) {
+            totalCalories = 0;
+        }
+
+        if (totalCalories == previousTotalCalories) {
+            return previousActiveCalories;
         }
 
         var activityTimerMinutes = activityInfo.timerTime / 1000.0 / 60.0;
@@ -41,17 +46,10 @@ class ActiveCaloriesDataFieldView extends WatchUi.SimpleDataField {
 			restCalories = -197.6 - 6.116 * age + 7.628 * profile.height + 12.2 * weight;
 		}
 		restCalories = Math.round(activityTimerMinutes * restCalories / 1440).toNumber();
-		var activeCalories = totalActivityCalories - restCalories;
+		var activeCalories = totalCalories - restCalories;
 
-        // Prevent decreasing numbers when the resting calories increase
-        if (previousCalories < activeCalories) {
-            previousCalories = activeCalories;
-            return activeCalories;
-        }
-        else {
-            return previousCalories;
-        }
-
+        previousActiveCalories = activeCalories;
+        return activeCalories;
     }
 
 }
