@@ -27,9 +27,12 @@ class ActiveCaloriesDataFieldView extends WatchUi.SimpleDataField {
             totalCalories = 0;
         }
 
+        // Recalculate only if increase is possible
         if (totalCalories == previousTotalCalories) {
             return previousActiveCalories;
         }
+
+        previousTotalCalories = totalCalories;
 
         var activityTimerMinutes = activityInfo.timerTime / 1000.0 / 60.0;
 
